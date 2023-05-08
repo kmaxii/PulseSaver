@@ -123,37 +123,40 @@ fun StopWatchDisplay(
         Spacer(Modifier.height(16.dp))
 
 
-
         val dataPoints = CurrentScreen.dataPoints
 
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val width = size.width
-            val height = size.height
+        if (dataPoints.size > 5) {
 
-            // Draw X and Y axis
-            drawLine(start = Offset(0f, 0f), end = Offset(width, 0f), color = Color.Black, strokeWidth = 2f)
-            drawLine(start = Offset(0f, 0f), end = Offset(0f, height), color = Color.Black, strokeWidth = 2f)
 
-            // Draw data points
-            val maxDataValue = dataPoints.maxOrNull() ?: 0
-            val xInterval = width / (dataPoints.size - 1)
-            val yInterval = height / maxDataValue
-            dataPoints.forEachIndexed { index, point ->
-                val x = index * xInterval
-                val y = height - (point * yInterval)
-                drawCircle(color = Color.Magenta, radius = 6f, center = Offset(x, y))
-            }
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val width = size.width
+                val height = size.height
 
-            // Draw lines connecting data points
-            dataPoints.forEachIndexed { index, point ->
-                if (index < dataPoints.size - 1) {
-                    val startPoint = Offset(index * xInterval, height - (point * yInterval))
-                    val endPoint = Offset((index + 1) * xInterval, height - (dataPoints[index + 1] * yInterval))
-                    drawLine(start = startPoint, end = endPoint, color = Color.Blue, strokeWidth = 2f)
+                // Draw X and Y axis
+                drawLine(start = Offset(0f, 0f), end = Offset(width, 0f), color = Color.Black, strokeWidth = 2f)
+                drawLine(start = Offset(0f, 0f), end = Offset(0f, height), color = Color.Black, strokeWidth = 2f)
+
+                // Draw data points
+                val maxDataValue = dataPoints.maxOrNull() ?: 0
+                val xInterval = width / (dataPoints.size - 1)
+                val yInterval = height / maxDataValue
+                dataPoints.forEachIndexed { index, point ->
+                    val x = index * xInterval
+                    val y = height - (point * yInterval)
+                    drawCircle(color = Color.Magenta, radius = 6f, center = Offset(x, y))
+                }
+
+                // Draw lines connecting data points
+                dataPoints.forEachIndexed { index, point ->
+                    if (index < dataPoints.size - 1) {
+                        val startPoint = Offset(index * xInterval, height - (point * yInterval))
+                        val endPoint = Offset((index + 1) * xInterval, height - (dataPoints[index + 1] * yInterval))
+                        drawLine(start = startPoint, end = endPoint, color = Color.Blue, strokeWidth = 2f)
+                    }
                 }
             }
-        }
 
+        }
     }
 }
 

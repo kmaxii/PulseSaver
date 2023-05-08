@@ -1,20 +1,62 @@
+import netscape.javascript.JSObject;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class WatchPulse {
 
-    public static void main(String[] args) {
+   /* public static void main(String[] args) {
 
-        savehyperate("https://app.hyperate.io/5715");
+
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                savehyperate("https://app.hyperate.io/5715");
+            }
+        };
+
+        // Schedule the task to run every second
+        Timer timer = new Timer();
+        timer.schedule(task, 0, 1000);
+    }*/
+
+    public static void main(String[] args) {
+        String apiUrl = "https://dev.pulsoid.net/api/v1/data/heart_rate/latest?response_mode=text_plain_only_heart_rate";
+        String token = "70baab5c-0175-44f4-b237-818b3a85e126";
+        String contentType = "application/json";
+
+        try {
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", "Bearer " + token);
+            connection.setRequestProperty("Content-Type", contentType);
+
+            BufferedReader inputReader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String inputLine;
+            while ((inputLine = inputReader.readLine()) != null) {
+                response.append(inputLine);
+            }
+            inputReader.close();
+
+
+            System.out.println(response.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -26,7 +68,6 @@ public class WatchPulse {
             return false;
         }
     }
-
 
 
     public static String saveHeartRate(String heartRateURL) {
@@ -42,28 +83,41 @@ public class WatchPulse {
         return "WRONG URL";
     }
 
+    private static Connection hyperateCon = null;
+
+
     private static String savehyperate(String hyperateURL) {
+        String apiUrl = "https://dev.pulsoid.net/api/v1/data/heart_rate/latest?response_mode=text_plain_only_heart_rate";
+        String token = "70baab5c-0175-44f4-b237-818b3a85e126";
+        String contentType = "application/json";
+
         try {
-            Document doc = Jsoup.connect(hyperateURL).get();
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", "Bearer " + token);
+            connection.setRequestProperty("Content-Type", contentType);
 
-            Elements data = doc.select(".heartrate");
-
-            String html = data.get(0).toString();
-
-            Pattern pattern = Pattern.compile("<p\\s+class=\"heartrate\"\\s+style=\"color:\\s*#[a-fA-F0-9]+;\\s*font-size:\\s*50px\">(\\d+)</p>");
-            Matcher matcher = pattern.matcher(html);
-            if (matcher.find()) {
-                String heartRate = matcher.group(1);
-                System.out.println("Heart rate: " + heartRate);
-                writeDataToCsv(heartRate);
-                return heartRate;
-            } else {
-                System.out.println("No heart rate found.");
+            BufferedReader inputReader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String inputLine;
+            while ((inputLine = inputReader.readLine()) != null) {
+                response.append(inputLine);
             }
+            inputReader.close();
 
-        } catch (IOException e) {
+
+            System.out.println(response.toString());
+
+            writeDataToCsv(response.toString());
+            return response.toString();
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
+
         return "null";
     }
 
