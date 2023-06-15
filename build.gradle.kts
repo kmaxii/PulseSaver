@@ -19,6 +19,7 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation("org.jsoup:jsoup:1.15.4")
+    implementation("org.apache.commons:commons-math3:3.6.1")
 }
 
 tasks.withType<KotlinCompile> {

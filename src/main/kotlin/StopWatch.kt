@@ -30,7 +30,7 @@ class StopWatch {
         WatchPulse.renameLatestCsv()
         CurrentScreen.dataPoints.clear()
 
-        if (!checkURL(url)) return
+        if (!checkURL()) return
 
 
         coroutineScope.launch {
@@ -42,13 +42,12 @@ class StopWatch {
                 lastTimestamp = System.currentTimeMillis()
                 formattedTime = formatTime(timeMillils)
 
-                println(timeMillils)
 
-                CurrentScreen.dataPoints.add(WatchPulse.saveHeartRate(url).toInt())
+                val lastHearRate = WatchPulse.saveHeartRate(url).toInt()
 
-               /* if (CurrentScreen.dataPoints.size > 10) {
-                    CurrentScreen.dataPoints.removeFirst()
-                }*/
+                CurrentScreen.dataPoints.add(lastHearRate)
+                LatestPulseSaver.saveLatestPulse(lastHearRate.toString())
+
 
                 textBoxText = "Latest: \n"
                 for (i in (CurrentScreen.dataPoints.size - 1) downTo if (CurrentScreen.dataPoints.size > 100) CurrentScreen.dataPoints.size - 101 else 0) {
@@ -61,10 +60,12 @@ class StopWatch {
     }
 
 
-    private fun checkURL(url: String) : Boolean {
+    private fun checkURL() : Boolean {
         if (url.isEmpty()) {
-            textBoxText = "Please enter a URL"
-            return false
+
+            url = "hyperate"
+            textBoxText = ""
+            return true
         }
 
         if (!url.startsWith("http")) {
